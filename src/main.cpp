@@ -18,7 +18,7 @@
 */
 
 
-//v1.2 copyright Comine.com 20170717M1205
+//v1.3 copyright Comine.com 20170724M1004
 #include "MStdLib.h"
 #include "MCommandArg.h"
 #include "MWinNamedPipe.h"
@@ -29,13 +29,14 @@
 #include "MIntArray.h"
 #include "MStringList.h"
 #include "MWinProcessList.h"
+#include "MProcessJob.h"
 
 
 //******************************************************
 //* Module Elements
 //******************************************************
 static const char *GApplicationName="MPipeActionServer";	// Used in Help
-static const char *GApplicationVersion="1.2";	// Used in Help
+static const char *GApplicationVersion="1.3";	// Used in Help
 static const char *GPipeName="\\\\.\\pipe\\MPipeActionServer";
 
 ////////////////////////////////////////////////////
@@ -43,6 +44,8 @@ static void GDisplayHelp(void);
 static bool GProcessMessage(const char *mesg);
 static bool GCloseApp(const char *appname);
 static bool GKillApp(const char *procid);
+static bool GStartApp(const char *apppathname);
+
 
 ////////////////////////////////////////////////////
 int main(int argn,const char *argv[])
@@ -99,6 +102,11 @@ int main(int argn,const char *argv[])
 		if(GProcessMessage(buf)==false)
 			{
 			MStdPrintf("**Message Not Executed\n");
+			server.Write("fail",5);
+			}
+		else
+			{
+			server.Write("ok",3);
 			}
 
 		server.Disconnect();
@@ -120,11 +128,12 @@ static void GDisplayHelp(void)
 				"   on the messages.  Use MPipeClient to send message to the pipe.\n"
 				"\n"
 				"   Commands:\n"
-				"            pid               : show server process id\n"
-				"            kill <pid>        : Kill a process\n"
-				"            logout            : logout user \n"
-				"            forcelogout       : forceably logout user\n"
-				"            close <exename>   : send WM_QUIT Message to app\n"
+				"            pid                   : show server process id\n"
+				"            kill <pid>            : Kill a process\n"
+				"            logout                : logout user \n"
+				"            forcelogout           : forceably logout user\n"
+				"            close <exename>       : send WM_QUIT Message to app\n"
+				"            start <exepathname>   : start a process\n"
 				"\n"
 				"   Example:\n"
 				"             C:>  MPipeClient <pipename> \"pid\"\n"
@@ -181,11 +190,20 @@ static bool GProcessMessage(const char *mesg)
 		return GCloseApp(splitter.Get(1));
 		}
 
-	// ie close notepad.exe
+	// ie kill notepad.exe
 	if(MStdStrICmp(cmd,"kill")==0 && argcount>=2)
 		{
 		return GKillApp(splitter.Get(1));
 		}
+
+
+	// ie kill notepad.exe
+	if(MStdStrICmp(cmd,"start")==0 && argcount>=2)
+		{
+		return GStartApp(splitter.Get(1));
+		}
+
+
 
 
 	return true;
@@ -235,6 +253,20 @@ static bool GKillApp(const char *procid)
 	MProcessControl proccontrol(true);
 	MStdPrintf("Killing Process with Process ID %d\n",processid);
 	proccontrol.Kill(processid);
+	return true;
+	}
+
+
+///////////////////////////////////////////////////////////////////
+static bool GStartApp(const char *apppathname)
+	{
+	MProcessJob procjob;
+	if(procjob.Create(apppathname)==false)
+		{
+		MStdPrintf("**Unable to start %s\n",apppathname);
+		return false;
+		}
+
 	return true;
 	}
 

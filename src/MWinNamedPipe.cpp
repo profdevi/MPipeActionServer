@@ -18,9 +18,8 @@
 */
 
 
-//v1.1 copyright Comine.com 20170708S1243
+//v1.2 copyright Comine.com 20170724M0910
 #include <Windows.h>
-#include <thread>
 #include "MStdLib.h"
 #include "MWinAccessControlList.h"
 #include "MWinSecurityDescriptor.h"

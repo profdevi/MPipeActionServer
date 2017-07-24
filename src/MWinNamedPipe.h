@@ -18,7 +18,7 @@
 */
 
 
-//v1.1 copyright Comine.com 20170708S1243
+//v1.2 copyright Comine.com 20170724M0910
 #ifndef MWinNamedPipe_h
 #define MWinNamedPipe_h
 
